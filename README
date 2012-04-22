@@ -1,0 +1,19 @@
+An open-source, file based MIDI sequencer written in Processing.
+
+THIS IS A WORK IN PROGRESS!
+
+In write mode, it takes input from the keyboard and writes text files that represent MIDI sequences.
+In read mode, it reads text files and sends their contents as MIDI messages.
+
+REFERENCES:
+Processing -- http://processing.org
+MIDIBus library: http://smallbutdigital.com/themidibus.php|
+LoopBe internal MIDI port: http://nerds.de/en/loopbe1.html |
+OSX alternative to LoopBe -- ipMIDI (Not Yet Tested!): http://nerds.de/en/ipmidi_osx.html
+
+
+This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along with this program. If not, see <http://www.gnu.org/licenses/>.
