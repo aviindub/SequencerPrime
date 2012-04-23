@@ -6,6 +6,10 @@ BufferedReader reader; //input file reader
 String input; //for reading lines from input file
 
 boolean read = true; //true for read mode, false for write mode
+int SMALLEST_NOTE = 32; //smallest possible note... 32nd for now
+String[] NOTES = {"C","C#","D","D#","E","F","F#","G","G#","A","A#","B"};
+char[] VALID_KEYS = {'q','w','e','r','t','y','u','i','o','p','[',']'};
+int octave;
 
 void setup() {
 
@@ -25,6 +29,8 @@ void setup() {
   //initialize MidiBus with no input, and LoopBe as output
   midiBus = new MidiBus(this, -1, "LoopBe Internal MIDI");
   
+  
+  
 }
 
 void draw() {
@@ -32,9 +38,8 @@ void draw() {
     /*
     *  READ MODE
     *
-    * get a file
-    * read packets from file at rate of draw loop
-    * packets are sized for the smallest possible note... 32nd maybe?
+    * read lines from file at rate of draw loop
+    * lines are sized for the smallest possible note... 32nd maybe?
     * parse packets in to midi notes and duration (+ other data?)
     * send noteon and noteoff messages
     * (or set a future event for a noteoff?)
@@ -68,50 +73,170 @@ void draw() {
     * at the end of each draw loop, start a new line in the output
     * and maybe display the sequence being written
     */
+    
+    output.print("/n");
+    
   }
 }
 
 void keyPressed() {
-
   if (read) {
     println("you are in read mode.");
   } else {
-    //write MIDI noteon messages to output using output.print()
-    switch (key) {
-      case 'a': case 'A':
-        //handle A
-        break;
-      case 'b': case 'B':
-        //handle B
-        break;
-    }
+    writeMidiNoteOn();
   }
 }
 
 void keyReleased() {
+  if (!read) {
+    writeMidiNoteOff();
+  }
+}
 
-  if (read) {
-    println("you are in read mode.");
+void writeMidiNoteOn() {
+  //write MIDI noteon messages to output using output.print()
+  int pitch = (octave+1)*2;
+  switch (key) {
+    case 'q':
+      //note C
+      //default pitch is C
+      break;
+    case 'w':
+      //note C#
+      pitch = pitch + 1;
+      break;
+    case 'e':
+      //note D
+      pitch = pitch + 2;
+      break;
+    case 'r':
+      //note D#
+      pitch = pitch + 3;
+      break;
+    case 't':
+      //note E
+      pitch = pitch + 4;
+      break;
+    case 'y':
+      //note F
+      pitch = pitch + 5;
+      break;
+    case 'u':
+      //note F#
+      pitch = pitch + 6;
+      break;
+    case 'i':
+      //note G
+      pitch = pitch + 7;
+      break;
+    case 'o':
+      //note G#
+      pitch = pitch + 8;
+      break;
+    case 'p':
+      //note A
+      pitch = pitch + 9;
+      break;
+    case '[':
+      //note A#
+      pitch = pitch + 10;
+      break;
+    case ']':
+      //note B
+      pitch = pitch + 11;
+      break;
+    case '-':
+      octave--;
+      break;
+    case '=':
+      octave++;
+      break;
+  }
+  if (key == '-' || key == '=') {
+      println("octave changed");
   } else {
-    //write MIDI noteoff messages to output
-    switch (key) {
-      case 'a': case 'A':
-        //handle A
-        break;
-      case 'b': case 'B':
-        //handle B
+    for (int i = 0; i < VALID_KEYS.length; i++) {
+      //test if key is a valid note key 
+      if (key == VALID_KEYS[i]) {
+        //if valid, write pitch to output
+        output.print(pitch + ",");
+        println("wrote note on - pitch " + pitch);
         break;
     }
   }
 }
 
+void writeMidiNoteOff() {
+  //write MIDI noteoff messages to output using output.print()
+  int pitch = (octave+1)*2;
+  switch (key) {
+    case 'q':
+      //note C
+      //default pitch is C
+      break;
+    case 'w':
+      //note C#
+      pitch = pitch + 1;
+      break;
+    case 'e':
+      //note D
+      pitch = pitch + 2;
+      break;
+    case 'r':
+      //note D#
+      pitch = pitch + 3;
+      break;
+    case 't':
+      //note E
+      pitch = pitch + 4;
+      break;
+    case 'y':
+      //note F
+      pitch = pitch + 5;
+      break;
+    case 'u':
+      //note F#
+      pitch = pitch + 6;
+      break;
+    case 'i':
+      //note G
+      pitch = pitch + 7;
+      break;
+    case 'o':
+      //note G#
+      pitch = pitch + 8;
+      break;
+    case 'p':
+      //note A
+      pitch = pitch + 9;
+      break;
+    case '[':
+      //note A#
+      pitch = pitch + 10;
+      break;
+    case ']':
+      //note B
+      pitch = pitch + 11;
+      break;
+  }
+  for (int i = 0; i < VALID_KEYS.length; i++) {
+    //test if key is a valid note key 
+    if (key == VALID_KEYS[i]) {
+      //if valid, write pitch to output
+      output.print(pitch + ",");
+      println("wrote note off - pitch " + pitch);
+      break;
+    }
+  }
+}
 
 int calculateFPS(bpm) {
   /*
-  * smallest note possible is 32nd, therefore
-  * smallest time interval needed is duration of a 32nd note
+  * duration of one frame =
+  * (desired BPM / 60 secs per min) 
+  * all over duration of smallest possible note
   */
-  return 1 / ((bpm / 60) / 32);
+  return (int) 1 / ((bpm / 60) / SMALLEST_NOTE);
 }
 
 void stop () {
