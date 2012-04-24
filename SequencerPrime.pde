@@ -5,9 +5,9 @@ PrintWriter output; //output file writer
 BufferedReader reader; //input file reader
 String input; //for reading lines from input file
 
-boolean read = true; //true for read mode, false for write mode
+boolean read = false; //true for read mode, false for write mode
 boolean passthru = true; //true means midi messages are also sent in write mode
-int SMALLEST_NOTE = 32; //smallest possible note... 32nd for now
+float SMALLEST_NOTE = 32.0; //smallest possible note... 32nd for now
 String[] NOTES = {"C","C#","D","D#","E","F","F#","G","G#","A","A#","B"};
 char[] VALID_KEYS = {'q','w','e','r','t','y','u','i','o','p','[',']'};
 int octave;
@@ -15,7 +15,7 @@ int octave;
 void setup() {
 
   size(300, 100);
-  bpm = 120;
+  float bpm = 120.0;
   frameRate(calculateFPS(bpm)); 
 
   if (read) {
@@ -64,11 +64,11 @@ void draw() {
           if (messages[i].charAt(0) == '!') {
             //leading ! means noteoff
             int pitch = int(messages[i].substring(1));
-            midibus.sendNoteOff(1, pitch, 70);
+            midiBus.sendNoteOff(1, pitch, 70);
           } else {
             //no leading ! means noteon
             int pitch = int(messages[i]);
-            midibus.sendNoteOn(1, pitch, 70);
+            midiBus.sendNoteOn(1, pitch, 70);
           }
         }
       }
@@ -177,7 +177,7 @@ void writeMidiNoteOn() {
         output.print(pitch + ",");
         println("wrote note on - pitch " + pitch);
         if (passthru) {
-          midibus.sendNoteOn(1, pitch, 70);
+          midiBus.sendNoteOn(1, pitch, 70);
         }
         break;
       }
@@ -245,20 +245,22 @@ void writeMidiNoteOff() {
       output.print("!" + pitch + ",");
       println("wrote note off - pitch " + pitch);
       if (passthru) {
-        midibus.sendNoteOff(1, pitch, 70);
+        midiBus.sendNoteOff(1, pitch, 70);
       }
       break;
     }
   }
 }
 
-int calculateFPS(bpm) {
+int calculateFPS(float bpm) {
   /*
   * duration of one frame =
   * (desired BPM / 60 secs per min) 
   * all over duration of smallest possible note
   */
-  return (int) 1 / ((bpm / 60) / SMALLEST_NOTE);
+  float fps =  1.0 / ((bpm / 60.0) / SMALLEST_NOTE);
+  println("framerate is " + fps);
+  return (int) fps;
 }
 
 void stop () {
