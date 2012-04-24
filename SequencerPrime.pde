@@ -20,7 +20,7 @@ void setup() {
 
   if (read) {
     //initialize the BufferedReader
-    reader = createReader("positions.txt");
+    reader = createReader("testfile.txt");
   } else {
     //initialize the PrintWriter
     String outputFileName = "output_" + month() +"_"+ day() +"_"+ year() +"_"+ hour()+minute() +".txt";
@@ -29,8 +29,6 @@ void setup() {
   
   //initialize MidiBus with no input, and LoopBe as output
   midiBus = new MidiBus(this, -1, "LoopBe Internal MIDI");
-  
-  
   
 }
 
@@ -60,15 +58,17 @@ void draw() {
       //send MIDI messages via MidiBus
       String[] messages = split(input, ',');
       if (messages.length > 1) {
-        for (int i = 0; i < messages.length ; i++) {
+        for (int i = 0; i < messages.length -1 ; i++) {
           if (messages[i].charAt(0) == '!') {
             //leading ! means noteoff
             int pitch = int(messages[i].substring(1));
             midiBus.sendNoteOff(1, pitch, 70);
+            println("sent midi noteoff - pitch" + pitch);
           } else {
             //no leading ! means noteon
             int pitch = int(messages[i]);
             midiBus.sendNoteOn(1, pitch, 70);
+            println("sent midi noteon - pitch" + pitch);
           }
         }
       }
@@ -81,7 +81,7 @@ void draw() {
   } else {
     /*
     * WRITE MODE
-    *
+    * 
     * most of the work for write mode 
     * is handled via keyPressed() and keyReleased()
     * so all this really needs to do is keep time
@@ -95,6 +95,9 @@ void draw() {
 }
 
 void keyPressed() {
+  if (key == 'x') {
+    stop();
+  }
   if (read) {
     println("you are in read mode.");
   } else {
@@ -110,7 +113,7 @@ void keyReleased() {
 
 void writeMidiNoteOn() {
   //write MIDI noteon messages to output using output.print()
-  int pitch = (octave+1)*2;
+  int pitch = (octave+1)*12;
   switch (key) {
     case 'q':
       //note C
@@ -168,7 +171,7 @@ void writeMidiNoteOn() {
       break;
   }
   if (key == '-' || key == '=') {
-      println("octave changed");
+      println("octave changed to " + octave);
   } else {
     for (int i = 0; i < VALID_KEYS.length; i++) {
       //test if key is a valid note key 
@@ -187,7 +190,7 @@ void writeMidiNoteOn() {
 
 void writeMidiNoteOff() {
   //write MIDI noteoff messages to output using output.print()
-  int pitch = (octave+1)*2;
+  int pitch = (octave+1)*12;
   switch (key) {
     case 'q':
       //note C
