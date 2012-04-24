@@ -6,6 +6,7 @@ BufferedReader reader; //input file reader
 String input; //for reading lines from input file
 
 boolean read = true; //true for read mode, false for write mode
+boolean passthru = true; //true means midi messages are also sent in write mode
 int SMALLEST_NOTE = 32; //smallest possible note... 32nd for now
 String[] NOTES = {"C","C#","D","D#","E","F","F#","G","G#","A","A#","B"};
 char[] VALID_KEYS = {'q','w','e','r','t','y','u','i','o','p','[',']'};
@@ -57,6 +58,20 @@ void draw() {
     } else {
       //parse MIDI messages from input line
       //send MIDI messages via MidiBus
+      String[] messages = split(input, ',');
+      if (messages.length > 1) {
+        for (int i = 0; i < messages.length ; i++) {
+          if (messages[i].charAt(0) == '!') {
+            //leading ! means noteoff
+            int pitch = int(messages[i].substring(1));
+            midibus.sendNoteOff(1, pitch, 70);
+          } else {
+            //no leading ! means noteon
+            int pitch = int(messages[i]);
+            midibus.sendNoteOn(1, pitch, 70);
+          }
+        }
+      }
       
       //or maybe the other way around??
       //send midi messages queued up from last pass
@@ -74,7 +89,7 @@ void draw() {
     * and maybe display the sequence being written
     */
     
-    output.print("/n");
+    output.print("\n");
     
   }
 }
@@ -161,7 +176,11 @@ void writeMidiNoteOn() {
         //if valid, write pitch to output
         output.print(pitch + ",");
         println("wrote note on - pitch " + pitch);
+        if (passthru) {
+          midibus.sendNoteOn(1, pitch, 70);
+        }
         break;
+      }
     }
   }
 }
@@ -223,8 +242,11 @@ void writeMidiNoteOff() {
     //test if key is a valid note key 
     if (key == VALID_KEYS[i]) {
       //if valid, write pitch to output
-      output.print(pitch + ",");
+      output.print("!" + pitch + ",");
       println("wrote note off - pitch " + pitch);
+      if (passthru) {
+        midibus.sendNoteOff(1, pitch, 70);
+      }
       break;
     }
   }
